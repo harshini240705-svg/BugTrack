@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BugTrack | Issue Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<header>
+    <div class="brand">BugTrack<span>.</span></div>
+    <div class="tagline">Software Issue Management System</div>
+</header>
+
+<main class="container">
+
+    <section class="welcome">
+        <div>
+            <h1>Issue Dashboard</h1>
+            <p>Report, monitor and manage software bugs.</p>
+        </div>
+        <div class="total">{{ bugs|length }} Issues Found</div>
+    </section>
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <div class="message">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="form-card">
+        <h2>Report a New Bug</h2>
+
+        <form action="{{ url_for('add_bug') }}" method="POST">
+            <input type="text" name="title" placeholder="Bug title" required maxlength="100">
+
+            <textarea name="description" placeholder="Describe the issue..." required></textarea>
+
+            <select name="priority" required>
+                <option value="">Select Priority</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+            </select>
+
+            <button type="submit">+ Report Bug</button>
+        </form>
+    </section>
+
+    <section class="issues">
+        <div class="section-heading">
+            <h2>Reported Issues</h2>
+        </div>
+
+        <form class="filters" method="GET" action="/">
+            <input type="text" name="search" placeholder="Search bugs..." value="{{ search }}">
+
+            <select name="status">
+                <option value="">All Statuses</option>
+                <option value="Open" {% if selected_status == 'Open' %}selected{% endif %}>Open</option>
+                <option value="In Progress" {% if selected_status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                <option value="Resolved" {% if selected_status == 'Resolved' %}selected{% endif %}>Resolved</option>
+            </select>
+
+            <button type="submit">Search</button>
+            <a href="/">Reset</a>
+        </form>
+
+        {% if bugs %}
+            {% for bug in bugs %}
+            <article class="bug-card">
+                <div class="bug-info">
+                    <h3>#{{ bug.id }} – {{ bug.title }}</h3>
+                    <p>{{ bug.description }}</p>
+
+                    <div class="labels">
+                        <span class="priority {{ bug.priority|lower }}">
+                            {{ bug.priority }} Priority
+                        </span>
+                        <span class="status {{ bug.status|lower|replace(' ', '-') }}">
+                            {{ bug.status }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <form action="{{ url_for('update_bug', bug_id=bug.id) }}" method="POST">
+                        <select name="status">
+                            <option value="Open" {% if bug.status == 'Open' %}selected{% endif %}>Open</option>
+                            <option value="In Progress" {% if bug.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                            <option value="Resolved" {% if bug.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                        </select>
+                        <button type="submit">Update</button>
+                    </form>
+
+                    <form action="{{ url_for('delete_bug', bug_id=bug.id) }}" method="POST">
+                        <button class="delete" type="submit"
+                            onclick="return confirm('Delete this bug?')">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </article>
+            {% endfor %}
+        {% else %}
+            <div class="empty">
+                <h3>No bugs found</h3>
+                <p>Report a new issue or change your search.</p>
+            </div>
+        {% endif %}
+    </section>
+
+</main>
+
+<footer>BugTrack | Built with Python, Flask and SQLite</footer>
+
+</body>
+</html>

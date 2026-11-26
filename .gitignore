@@ -1,0 +1,22 @@
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environment
+.venv/
+venv/
+
+# Database
+bugs.db
+*.db
+
+# Environment variables
+.env
+
+# VS Code
+.vscode/
+# Nested Python environment
+BugTrack/bug tracker/
+**/__pycache__/
+*.pyc
